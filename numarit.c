@@ -1,5 +1,4 @@
 #include <stdlib.h>
-#include <string.h>
 #include "numarit.h"
 #include "numutil.h"
 
