@@ -9,6 +9,7 @@
  * Implementar interface usuário
  * Implementar casos para calcular A - B (B > A), sinais, etc
  * Implementar operação especial
+ * Implementar test cases
 */
 int main()
 {
