@@ -58,7 +58,7 @@ int numarit_soma(struct Numero *num1, struct Numero *num2, struct Numero *result
 
 int numarit_subtracao(struct Numero *num1, struct Numero *num2, struct Numero *resultado)
 {
-    if (num1 == NULL || num2 == NULL || resultado == NULL)
+    if (num1 == NULL || num2 == NULL || resultado == NULL) 
         return -2;
 
     if (numero_inicializa(resultado, num1->tamanho) != 0)
@@ -145,8 +145,10 @@ int numarit_multiplicacao(struct Numero *num1, struct Numero *num2, struct Numer
 
 int numarit_multiplicacao_por_ull(struct Numero *num, unsigned long long valor, struct Numero *resultado)
 {
-    if (num == NULL || resultado == NULL) return -2;
-    if (numero_inicializa(resultado, num->tamanho + 1) != 0) return -1;
+    if (num == NULL || resultado == NULL) 
+        return -2;
+    if (numero_inicializa(resultado, num->tamanho + 1) != 0) 
+        return -1;
 
     unsigned long long vai_um = 0;
     for (unsigned long long i = 0; i < num->tamanho; i++)
@@ -164,9 +166,12 @@ int numarit_multiplicacao_por_ull(struct Numero *num, unsigned long long valor, 
 
 unsigned long long numarit_divisao_por_ull(struct Numero *num, unsigned long long divisor, struct Numero *quociente)
 {
-    if (num == NULL || quociente == NULL) return 2;
-    if (divisor == 0) return 3;
-    if (numero_inicializa(quociente, num->tamanho) != 0) return 1;
+    if (num == NULL || quociente == NULL) 
+        return 2;
+    if (divisor == 0) 
+        return 3;
+    if (numero_inicializa(quociente, num->tamanho) != 0) 
+        return 1;
 
     unsigned long long resto = 0;
     for (unsigned long long i = num->tamanho; i-- > 0;)
@@ -185,9 +190,9 @@ unsigned long long numarit_divisao_por_ull(struct Numero *num, unsigned long lon
 
 int numarit_divisao_knuth(struct Numero *dividendo, struct Numero *divisor, struct Numero *quociente, struct Numero *resto)
 {
-    if (dividendo == NULL || divisor == NULL || quociente == NULL || resto == NULL)
+    if (dividendo == NULL || divisor == NULL || quociente == NULL || resto == NULL) 
         return -2;
-    if (divisor->tamanho == 0 || (divisor->tamanho == 1 && divisor->blocos_ptr[0] == 0))
+    if (divisor->tamanho == 0 || (divisor->tamanho == 1 && divisor->blocos_ptr[0] == 0)) 
         return -3;
 
     unsigned long long m = dividendo->tamanho;
@@ -199,7 +204,8 @@ int numarit_divisao_knuth(struct Numero *dividendo, struct Numero *divisor, stru
     numero_cria_vazio(&norm_dividendo);
     numero_cria_vazio(&norm_divisor);
 
-    if (numero_inicializa(&norm_dividendo, m + 1) != 0) return -1;
+    if (numero_inicializa(&norm_dividendo, m + 1) != 0) 
+        return -1;
     if (numero_inicializa(&norm_divisor, n) != 0)
     {
         numero_libera(&norm_dividendo);

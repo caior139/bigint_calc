@@ -5,7 +5,8 @@
 
 int numero_inicializa(struct Numero *num, unsigned long long tamanho)
 {
-    if (num == NULL) return -2;
+    if (num == NULL) 
+        return -2;
 
     if (num->blocos_ptr != NULL) numero_libera(num);
 
@@ -23,7 +24,8 @@ int numero_inicializa(struct Numero *num, unsigned long long tamanho)
 
 void numero_libera(struct Numero *num)
 {
-    if (num == NULL) return;
+    if (num == NULL) 
+        return;
 
     if (num->blocos_ptr != NULL)
     {
@@ -38,15 +40,18 @@ void numero_libera(struct Numero *num)
 
 int numero_resize(struct Numero *num)
 {
-    if (num == NULL) return -2;
+    if (num == NULL) 
+        return -2;
 
     unsigned long long novo_tamanho = num->tamanho;
     if (novo_tamanho == 0) novo_tamanho = 1;
 
-    if (novo_tamanho == num->alocado) return 0;
+    if (novo_tamanho == num->alocado) 
+        return 0;
 
     unsigned long long *novo_ptr = (unsigned long long *)realloc(num->blocos_ptr, novo_tamanho * sizeof(unsigned long long));
-    if (novo_ptr == NULL) return -1;
+    if (novo_ptr == NULL) 
+        return -1;
 
     if (novo_tamanho > num->alocado)
         memset(novo_ptr + num->alocado, 0, (novo_tamanho - num->alocado) * sizeof(unsigned long long));
@@ -60,7 +65,8 @@ int numero_resize(struct Numero *num)
 
 int numero_compacta(struct Numero *num)
 {
-    if (num == NULL || num->blocos_ptr == NULL) return -2;
+    if (num == NULL || num->blocos_ptr == NULL) 
+        return -2;
 
     numutil_normaliza(num);
 
@@ -73,7 +79,8 @@ int numero_compacta(struct Numero *num)
 
 void numero_cria_vazio(struct Numero *num)
 {
-    if (num == NULL) return;
+    if (num == NULL) 
+        return;
 
     num->blocos_ptr = NULL;
     num->tamanho = 0;
@@ -114,11 +121,14 @@ int numero_set(struct Numero *num, unsigned long long valor)
 
 int numero_copia(const struct Numero *origem, struct Numero *destino)
 {
-    if (origem == NULL || destino == NULL) return -1;
-    if (origem == destino) return 0;
+    if (origem == NULL || destino == NULL) 
+        return -1;
+    if (origem == destino) 
+        return 0;
 
     int ret = numero_inicializa(destino, origem->tamanho);
-    if (ret != 0) return -2;
+    if (ret != 0) 
+        return -2;
 
     if (origem->tamanho > 0)
         memcpy(destino->blocos_ptr, origem->blocos_ptr, origem->tamanho * sizeof(unsigned long long));
