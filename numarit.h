@@ -75,12 +75,12 @@ int numarit_multiplicacao_por_ull(struct Numero *A, unsigned long long b, struct
  *   struct Numero *Q : Resultado (quociente)
  *
  * Output:
- *   0   - Sucesso
- *  -1   - Falha de alocação
- *  -2   - Argumento NULL
- *  -3   - Divisor zero
+ *   resto   - Resto de divisão
+ *   1       - Falha de alocação
+ *   2       - Argumento NULL
+ *   3       - Divisor zero
  */
-long long numarit_divisao_por_ull(struct Numero *A, unsigned long long div, struct Numero *Q);
+unsigned long long numarit_divisao_por_ull(struct Numero *A, unsigned long long div, struct Numero *Q);
 
 /*
  * Divide A por B usando o algoritmo de Knuth (divisão longa)

@@ -162,11 +162,11 @@ int numarit_multiplicacao_por_ull(struct Numero *num, unsigned long long valor, 
     return 0;
 }
 
-long long numarit_divisao_por_ull(struct Numero *num, unsigned long long divisor, struct Numero *quociente)
+unsigned long long numarit_divisao_por_ull(struct Numero *num, unsigned long long divisor, struct Numero *quociente)
 {
-    if (num == NULL || quociente == NULL) return -2;
-    if (divisor == 0) return -3;
-    if (numero_inicializa(quociente, num->tamanho) != 0) return -1;
+    if (num == NULL || quociente == NULL) return 2;
+    if (divisor == 0) return 3;
+    if (numero_inicializa(quociente, num->tamanho) != 0) return 1;
 
     unsigned long long resto = 0;
     for (unsigned long long i = num->tamanho; i-- > 0;)
