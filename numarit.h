@@ -19,7 +19,7 @@
  *   0   - Sucesso
  *  -1   - Falha de alocação
  *  -2   - Argumento NULL
- */
+ */u
 int numarit_soma(struct Numero *A, struct Numero *B, struct Numero *S);
 
 /*
