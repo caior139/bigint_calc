@@ -6,7 +6,6 @@
 #include "numutil.h"
 
 /* TODO:
- * Implementar casos para calcular A - B (B > A), sinais, etc
  * Implementar operação especial
 */
 int main()
