@@ -208,6 +208,10 @@ void numio_interface()
 
         if (escolha == 1)
         {
+                
+            numero_libera(&num1);
+            numero_libera(&num2);
+
             int opcao_entrada;
 
             printf("Escolha a forma de entrada:\n");
@@ -327,11 +331,11 @@ void numio_interface()
         case 4:
             numarit_divisao_knuth(&num1, &num2, &resultado, &resto);
             resultado.sinal = (num1.sinal == num2.sinal) ? 1 : -1;
+            numero_libera(&resto);
             break;
 
         case 5:
-            numarit_modulo(&num1, &num2, &resto);
-            resultado = resto;
+            numarit_modulo(&num1, &num2, &resultado);
             resultado.sinal = 1;
             break;
 
@@ -356,7 +360,7 @@ void numio_interface()
         {
             char nome_testcase[512];
             printf("Digite o nome do test case (ex: TESTE1.txt): ");
-            fgets(nome_testcase, sizeof(nome_testcase), stdin);
+            fgets(nome_testcase, sizeof(nome_testcase) - 1, stdin);
             nome_testcase[strcspn(nome_testcase, "\n")] = 0;
 
             char caminho_completo[1024];
@@ -401,9 +405,6 @@ void numio_interface()
             }
         }
 
-        numero_libera(&num1);
-        numero_libera(&num2);
         numero_libera(&resultado);
-        numero_libera(&resto);
     }
 }
