@@ -34,6 +34,7 @@ int numio_gera_numero(struct Numero *num, unsigned long long num_blocos, int see
  *
  * Output:
  *   0   - Sucesso
+ *  -1   - Número de Blocos 0
  *  -2   - Argumento NULL
  *
  * Observação:

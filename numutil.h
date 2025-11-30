@@ -58,4 +58,7 @@ int numutil_compara(struct Numero *A, struct Numero *B);
  */
 int numutil_valida(struct Numero *num);
 
+
+double numutil_estima_ln(struct Numero *num);
+
 #endif 

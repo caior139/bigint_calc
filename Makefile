@@ -16,7 +16,7 @@ all: $(EXE)
 
 # Linka todos os objetos em um executável
 $(EXE): $(OBJ)
-	$(CC) -o $@ $(OBJ) $(CFLAGS)
+	$(CC) -o $@ $(OBJ) $(CFLAGS) -lm
 
 # Regra genérica: compila .c para .o
 %.o: %.c

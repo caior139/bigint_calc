@@ -1,7 +1,9 @@
 #ifndef NUMARIT_H
 #define NUMARIT_H
 
+#define MAX_ITER 20
 #include "numero.h"
+
 
 /*
  * Biblioteca de operações aritméticas para o tipo abstrato Numero.
@@ -140,5 +142,7 @@ int numarit_divisao_knuth(struct Numero *A, struct Numero *B, struct Numero *Q, 
  *   Internamente utiliza a função numarit_divisao_knuth.
  */
 int numarit_modulo(struct Numero *A, struct Numero *B, struct Numero *resto);
+
+double numarit_lambert(struct Numero *num, struct Numero *resultado);
 
 #endif

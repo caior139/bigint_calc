@@ -11,6 +11,9 @@
 
 int numio_gera_numero(struct Numero *num, unsigned long long num_blocos, int seed)
 {
+    if (num_blocos == 0)
+        return -1;
+
     if (num == NULL)
         return -2;
 
@@ -193,6 +196,7 @@ void numio_interface()
     while (1)
     {
         int escolha;
+        double w = 0;
 
         printf("\nMENU PRINCIPAL:\n");
         printf("1 - Inserir/ler novos numeros\n");
@@ -208,7 +212,7 @@ void numio_interface()
 
         if (escolha == 1)
         {
-                
+
             numero_libera(&num1);
             numero_libera(&num2);
 
@@ -292,10 +296,10 @@ void numio_interface()
                 numutil_troca_ponteiros(&p1, &p2);
 
             printf("Numero 1: ");
-            numio_print_numero(&num1);
+            numio_print_numero_compacto(&num1);
 
             printf("Numero 2: ");
-            numio_print_numero(&num2);
+            numio_print_numero_compacto(&num2);
         }
 
         int opcao_operacao;
@@ -306,6 +310,7 @@ void numio_interface()
         printf("3 - Multiplicacao\n");
         printf("4 - Divisao inteira\n");
         printf("5 - Modulo\n");
+        printf("6 - Lambert W\n");
         printf("Opcao: ");
 
         scanf("%d", &opcao_operacao);
@@ -338,6 +343,9 @@ void numio_interface()
             numarit_modulo(&num1, &num2, &resultado);
             resultado.sinal = 1;
             break;
+        case 6:
+            w = numarit_lambert(&num1, &resultado);
+            break;
 
         default:
             printf("Operacao invalida!\n");
@@ -345,11 +353,20 @@ void numio_interface()
         }
 
         printf("\n========== RESULTADO ==========\n");
-        if (resultado.tamanho > NUMIO_LIMITE_PRINT)
+        if (opcao_operacao == 6)
+        {
+            printf("Parte inteira: ");
             numio_print_numero_compacto(&resultado);
+            printf("Parte decimal: %lf\n", w);
+        }
         else
-            numio_print_numero(&resultado);
-        printf("===============================\n");
+        {
+            if (resultado.tamanho > NUMIO_LIMITE_PRINT)
+                numio_print_numero_compacto(&resultado);
+            else
+                numio_print_numero(&resultado);
+            printf("===============================\n");
+        }
 
         char salvar;
         printf("Deseja salvar como test case? (s/n): ");
@@ -364,6 +381,7 @@ void numio_interface()
             nome_testcase[strcspn(nome_testcase, "\n")] = 0;
 
             char caminho_completo[1024];
+
             snprintf(caminho_completo, sizeof(caminho_completo),
                      "/home/caio/Área de trabalho/Geral/Programação/c-sadao/testes/%s",
                      nome_testcase);
@@ -372,7 +390,7 @@ void numio_interface()
 
             if (fptr != NULL)
             {
-           
+
                 fclose(fptr);
                 struct Numero esperado;
                 numero_cria_vazio(&esperado);
@@ -387,7 +405,7 @@ void numio_interface()
             }
             else
             {
-             
+
                 fptr = fopen(caminho_completo, "w");
                 if (fptr == NULL)
                 {
@@ -407,4 +425,7 @@ void numio_interface()
 
         numero_libera(&resultado);
     }
+
+    numero_libera(&num1);
+    numero_libera(&num2);
 }

@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 #include "numarit.h"
 #include "numutil.h"
 
@@ -146,8 +147,10 @@ int numarit_multiplicacao(struct Numero *num1, struct Numero *num2, struct Numer
 
 int numarit_multiplicacao_por_ull(struct Numero *num, unsigned long long valor, struct Numero *resultado)
 {
-    if (num == NULL || resultado == NULL) return -2;
-    if (numero_inicializa(resultado, num->tamanho + 1) != 0) return -1;
+    if (num == NULL || resultado == NULL)
+        return -2;
+    if (numero_inicializa(resultado, num->tamanho + 1) != 0)
+        return -1;
 
     unsigned long long vai_um = 0;
     for (unsigned long long i = 0; i < num->tamanho; i++)
@@ -165,9 +168,12 @@ int numarit_multiplicacao_por_ull(struct Numero *num, unsigned long long valor, 
 
 long long numarit_divisao_por_ull(struct Numero *num, unsigned long long divisor, struct Numero *quociente)
 {
-    if (num == NULL || quociente == NULL) return -2;
-    if (divisor == 0) return -3;
-    if (numero_inicializa(quociente, num->tamanho) != 0) return -1;
+    if (num == NULL || quociente == NULL)
+        return -2;
+    if (divisor == 0)
+        return -3;
+    if (numero_inicializa(quociente, num->tamanho) != 0)
+        return -1;
 
     unsigned long long resto = 0;
     for (unsigned long long i = num->tamanho; i-- > 0;)
@@ -194,13 +200,25 @@ int numarit_divisao_knuth(struct Numero *dividendo, struct Numero *divisor, stru
     unsigned long long m = dividendo->tamanho;
     unsigned long long n = divisor->tamanho;
 
+    if (m == n)
+    {
+        if (numutil_compara(dividendo, divisor) == -1)
+        {
+            numero_set(quociente, 0);
+            numero_copia(dividendo, resto);
+
+            return 0;
+        }
+    }
+
     unsigned long long fator = BLOCO_BASE / (divisor->blocos_ptr[n - 1] + 1ULL);
 
     struct Numero norm_dividendo, norm_divisor;
     numero_cria_vazio(&norm_dividendo);
     numero_cria_vazio(&norm_divisor);
 
-    if (numero_inicializa(&norm_dividendo, m + 1) != 0) return -1;
+    if (numero_inicializa(&norm_dividendo, m + 1) != 0)
+        return -1;
     if (numero_inicializa(&norm_divisor, n) != 0)
     {
         numero_libera(&norm_dividendo);
@@ -332,4 +350,43 @@ int numarit_modulo(struct Numero *num1, struct Numero *num2, struct Numero *rest
     numero_libera(&quociente);
 
     return resultado;
+}
+
+double numarit_lambert(struct Numero *num, struct Numero *resultado)
+{
+    if (num->sinal < 0)
+        return -1;
+
+    if (num->sinal == 0)
+    {
+        numero_set(resultado, 0);
+        return 0;
+    }
+
+    double ln_n = numutil_estima_ln(num);
+
+    double w;
+    if (ln_n < 1.0)
+        w = ln_n;
+    else
+        w = ln_n - log(ln_n);
+
+    double tolerancia = 1e-9;
+
+    for (int i = 0; i < MAX_ITER; i++)
+    {
+        double log_w = log(w);
+        double numerador = w - ln_n + log_w;
+        double denominador = 1.0 + (1.0 / w);
+        double diff = numerador / denominador;
+        w = w - diff;
+        if (fabs(diff) < tolerancia)
+            break;
+    }
+
+    unsigned long long resultado_final = (unsigned long long)floor(w);
+
+    numero_set(resultado, resultado_final);
+
+    return w - resultado_final;
 }
