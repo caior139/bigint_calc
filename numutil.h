@@ -43,7 +43,7 @@ void numutil_normaliza(struct Numero *num);
  *  -1   - Se A < B
  *  -2   - Argumento NULL
  */
-int numutil_compara(struct Numero *A, struct Numero *B);
+int numutil_compara(const struct Numero *A, const struct Numero *B);
 
 /*
  * Verifica se o número é válido (memória, tamanho e ponteiro)
@@ -56,9 +56,9 @@ int numutil_compara(struct Numero *A, struct Numero *B);
  *   0   - Se inválido
  *  -2   - Argumento NULL
  */
-int numutil_valida(struct Numero *num);
+int numutil_valida(const struct Numero *num);
 
 
-double numutil_estima_ln(struct Numero *num);
+double numutil_estima_ln(const struct Numero *num);
 
 #endif 

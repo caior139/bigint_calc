@@ -4,9 +4,9 @@
 /*
  * Biblioteca do Tipo Abstrato Numero
  */
-
-#define BLOCO_BASE 100000000ULL  /* 10^8 */
-#define DIGITOS_BLOCO 8
+#include <stdint.h>
+#define BLOCO_BASE 1000000000ULL  /* 10^8 */
+#define DIGITOS_BLOCO 9
 #define LIMITE_COMPACTA 2
 /*
  * Struct Numero que representa um número com blocos de tamanho BLOCO_BASE
@@ -17,9 +17,9 @@
  * sinal       : Indica o sinal do número (0 = zero, 1 = positivo, -1 = negativo)
  */
 struct Numero {
-    unsigned long long *blocos_ptr;
-    unsigned long long tamanho;
-    unsigned long long alocado;
+    uint32_t *blocos_ptr;
+    uint64_t tamanho;
+    uint64_t alocado;
     int sinal;
 };
 
@@ -35,7 +35,7 @@ struct Numero {
  *  -1   - Falha de alocação
  *  -2   - Argumento NULL
  */
-int numero_inicializa(struct Numero *num, unsigned long long tam);
+int numero_inicializa(struct Numero *num, uint64_t tam);
 
 /*
  * Libera memória associada ao número
@@ -96,7 +96,7 @@ void numero_cria_vazio(struct Numero *num);
  *  -1   - Argumento NULL
  *  -2   - Falha de alocação
  */
-int numero_set(struct Numero *num, unsigned long long valor);
+int numero_set(struct Numero *num, uint64_t valor);
 
 /*
  * Copia o número O para C

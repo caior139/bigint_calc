@@ -24,11 +24,8 @@
  *  -1   - Falha de alocação de S
  *  -2   - Argumento NULL
  *
- * Observação:
- *   O resultado é automaticamente normalizado para remover blocos
- *   desnecessários.
  */
-int numarit_soma(struct Numero *A, struct Numero *B, struct Numero *S);
+int numarit_soma(const struct Numero *A, const struct Numero *B, struct Numero *S);
 
 /*
  * Subtrai dois números A - B e armazena o resultado em S.
@@ -42,11 +39,8 @@ int numarit_soma(struct Numero *A, struct Numero *B, struct Numero *S);
  *   0   - Sucesso
  *  -2   - Argumento NULL
  *
- * Observação:
- *   Assume que A >= B; o resultado é normalizado para remover
- *   blocos desnecessários.
  */
-int numarit_subtracao(struct Numero *A, struct Numero *B, struct Numero *S);
+int numarit_subtracao(const struct Numero *A, const struct Numero *B, struct Numero *S);
 
 /*
  * Multiplica dois números A * B e armazena o resultado em M.
@@ -60,11 +54,8 @@ int numarit_subtracao(struct Numero *A, struct Numero *B, struct Numero *S);
  *   0   - Sucesso
  *  -1   - Falha de alocação de M
  *  -2   - Argumento NULL
- *
- * Observação:
- *   O resultado é normalizado para remover blocos desnecessários.
  */
-int numarit_multiplicacao(struct Numero *A, struct Numero *B, struct Numero *M);
+int numarit_multiplicacao(const struct Numero *A, const struct Numero *B, struct Numero *M);
 
 /*
  * Multiplica um número A por um valor unsigned long long b e armazena
@@ -79,11 +70,8 @@ int numarit_multiplicacao(struct Numero *A, struct Numero *B, struct Numero *M);
  *   0   - Sucesso
  *  -1   - Falha de alocação de M
  *  -2   - Argumento NULL
- *
- * Observação:
- *   Útil para multiplicações por constantes ou fatores de normalização.
  */
-int numarit_multiplicacao_por_ull(struct Numero *A, unsigned long long b, struct Numero *M);
+int numarit_multiplicacao_por_ull(const struct Numero *A, uint32_t b, struct Numero *M);
 
 /*
  * Divide um número A por um valor unsigned long long div.
@@ -99,10 +87,8 @@ int numarit_multiplicacao_por_ull(struct Numero *A, unsigned long long b, struct
  *   -2   - Argumento NULL
  *   -3   - Divisor zero
  *
- * Observação:
- *   O quociente é normalizado. O resto é retornado como long long.
  */
-long long numarit_divisao_por_ull(struct Numero *A, unsigned long long div, struct Numero *Q);
+long long numarit_divisao_por_ull(const struct Numero *A, uint32_t div, struct Numero *Q);
 
 /*
  * Divide A por B usando o algoritmo de Knuth (divisão longa).
@@ -119,10 +105,8 @@ long long numarit_divisao_por_ull(struct Numero *A, unsigned long long div, stru
  *  -2   - Argumento NULL
  *  -3   - Divisor zero
  *
- * Observação:
- *   Quociente e resto são normalizados.
  */
-int numarit_divisao_knuth(struct Numero *A, struct Numero *B, struct Numero *Q, struct Numero *R);
+int numarit_divisao_knuth(const struct Numero *A, const struct Numero *B, struct Numero *Q, struct Numero *R);
 
 /*
  * Calcula o módulo A % B e armazena o resultado em resto.
@@ -137,12 +121,9 @@ int numarit_divisao_knuth(struct Numero *A, struct Numero *B, struct Numero *Q, 
  *  -1   - Falha de alocação
  *  -2   - Argumento NULL
  *  -3   - Divisor zero
- *
- * Observação:
- *   Internamente utiliza a função numarit_divisao_knuth.
  */
-int numarit_modulo(struct Numero *A, struct Numero *B, struct Numero *resto);
+int numarit_modulo(const struct Numero *A, const struct Numero *B, struct Numero *resto);
 
-double numarit_lambert(struct Numero *num, struct Numero *resultado);
+double numarit_lambert(const struct Numero *num, struct Numero *resultado);
 
 #endif

@@ -1,9 +1,11 @@
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
+
 #include "numero.h"
 #include "numutil.h"
 
-int numero_inicializa(struct Numero *num, unsigned long long tamanho)
+int numero_inicializa(struct Numero *num, uint64_t tamanho)
 {
     if (num == NULL) return -2;
 
@@ -11,7 +13,7 @@ int numero_inicializa(struct Numero *num, unsigned long long tamanho)
 
     if (tamanho == 0) tamanho = 1;
 
-    num->blocos_ptr = (unsigned long long *)calloc(tamanho, sizeof(unsigned long long));
+    num->blocos_ptr = (uint32_t *)calloc(tamanho, sizeof(uint32_t));
     if (num->blocos_ptr == NULL) return -1;
 
     num->tamanho = tamanho;
@@ -40,16 +42,16 @@ int numero_resize(struct Numero *num)
 {
     if (num == NULL) return -2;
 
-    unsigned long long novo_tamanho = num->tamanho;
+    uint64_t novo_tamanho = num->tamanho;
     if (novo_tamanho == 0) novo_tamanho = 1;
 
     if (novo_tamanho == num->alocado) return 0;
 
-    unsigned long long *novo_ptr = (unsigned long long *)realloc(num->blocos_ptr, novo_tamanho * sizeof(unsigned long long));
+    uint32_t *novo_ptr = (uint32_t *)realloc(num->blocos_ptr, novo_tamanho * sizeof(uint32_t));
     if (novo_ptr == NULL) return -1;
 
     if (novo_tamanho > num->alocado)
-        memset(novo_ptr + num->alocado, 0, (novo_tamanho - num->alocado) * sizeof(unsigned long long));
+        memset(novo_ptr + num->alocado, 0, (novo_tamanho - num->alocado) * sizeof(uint32_t));
 
     num->blocos_ptr = novo_ptr;
     num->alocado = novo_tamanho;
@@ -64,7 +66,7 @@ int numero_compacta(struct Numero *num)
 
     numutil_normaliza(num);
 
-    unsigned long long memoria_livre = num->alocado - num->tamanho;
+    uint64_t memoria_livre = num->alocado - num->tamanho;
     if (memoria_livre > num->alocado / 2)
         return numero_resize(num);
 
@@ -81,12 +83,12 @@ void numero_cria_vazio(struct Numero *num)
     num->sinal = 0;
 }
 
-int numero_set(struct Numero *num, unsigned long long valor)
+int numero_set(struct Numero *num, uint64_t valor)
 {
     if (num == NULL) return -1;
 
-    unsigned long long num_blocos = 0;
-    unsigned long long temporario = valor;
+    uint64_t num_blocos = 0;
+    uint64_t temporario = valor;
 
     do
     {
@@ -97,9 +99,9 @@ int numero_set(struct Numero *num, unsigned long long valor)
     int ret = numero_inicializa(num, num_blocos);
     if (ret != 0) return -2;
 
-    for (unsigned long long indice = 0; indice < num_blocos; indice++)
+    for (uint64_t idx = 0; idx < num_blocos; idx++)
     {
-        num->blocos_ptr[indice] = valor % BLOCO_BASE;
+        num->blocos_ptr[idx] = valor % BLOCO_BASE;
         valor /= BLOCO_BASE;
     }
 
@@ -121,7 +123,7 @@ int numero_copia(const struct Numero *origem, struct Numero *destino)
     if (ret != 0) return -2;
 
     if (origem->tamanho > 0)
-        memcpy(destino->blocos_ptr, origem->blocos_ptr, origem->tamanho * sizeof(unsigned long long));
+        memcpy(destino->blocos_ptr, origem->blocos_ptr, origem->tamanho * sizeof(uint32_t));
 
     destino->sinal = origem->sinal;
 

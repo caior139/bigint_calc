@@ -3,13 +3,15 @@
 #include <string.h>
 #include <ctype.h>
 #include <time.h>
+#include <stdint.h>
+#include <inttypes.h>
 
 #include "numio.h"
 #include "numero.h"
 #include "numarit.h"
 #include "numutil.h"
 
-int numio_gera_numero(struct Numero *num, unsigned long long num_blocos, int seed)
+int numio_gera_numero(struct Numero *num, uint64_t num_blocos, int seed)
 {
     if (num_blocos == 0)
         return -1;
@@ -25,11 +27,10 @@ int numio_gera_numero(struct Numero *num, unsigned long long num_blocos, int see
     if (numero_inicializa(num, num_blocos) != 0)
         return -1;
 
-    unsigned long long i;
-    for (i = 0; i < num_blocos - 1; i++)
-        num->blocos_ptr[i] = (unsigned long long)(rand() % BLOCO_BASE);
+    for (uint64_t i = 0; i < num_blocos - 1; i++)
+        num->blocos_ptr[i] = (uint32_t)(rand() % BLOCO_BASE);
 
-    num->blocos_ptr[num_blocos - 1] = (unsigned long long)((rand() % (BLOCO_BASE - 1)) + 1);
+    num->blocos_ptr[num_blocos - 1] = (uint32_t)((rand() % (BLOCO_BASE - 1)) + 1);
 
     return 0;
 }
@@ -43,7 +44,7 @@ int numio_le_numero_txt(const char *caminho, struct Numero *num)
     if (fptr == NULL)
         return -2;
 
-    unsigned long long numero_digitos = 0;
+    uint64_t numero_digitos = 0;
     int c;
 
     while ((c = fgetc(fptr)) != EOF)
@@ -59,7 +60,7 @@ int numio_le_numero_txt(const char *caminho, struct Numero *num)
 
     rewind(fptr);
 
-    unsigned long long num_blocos = (numero_digitos + DIGITOS_BLOCO - 1) / DIGITOS_BLOCO;
+    uint64_t num_blocos = (numero_digitos + DIGITOS_BLOCO - 1) / DIGITOS_BLOCO;
 
     if (numero_inicializa(num, num_blocos) != 0)
     {
@@ -74,7 +75,7 @@ int numio_le_numero_txt(const char *caminho, struct Numero *num)
         return -1;
     }
 
-    unsigned long long idx = 0;
+    uint64_t idx = 0;
     while ((c = fgetc(fptr)) != EOF && idx < numero_digitos)
         if (isdigit(c))
             digitos[idx++] = c;
@@ -82,18 +83,18 @@ int numio_le_numero_txt(const char *caminho, struct Numero *num)
     digitos[numero_digitos] = '\0';
     fclose(fptr);
 
-    unsigned long long pos = numero_digitos;
+    uint64_t pos = numero_digitos;
 
-    for (unsigned long long bloco = 0; bloco < num_blocos; bloco++)
+    for (uint64_t bloco = 0; bloco < num_blocos; bloco++)
     {
-        unsigned long long tamanho_bloco = DIGITOS_BLOCO;
+        uint32_t tamanho_bloco = DIGITOS_BLOCO;
         if (pos < DIGITOS_BLOCO)
             tamanho_bloco = pos;
 
         pos -= tamanho_bloco;
 
         char bloco_str[DIGITOS_BLOCO + 1];
-        for (unsigned long long i = 0; i < tamanho_bloco; i++)
+        for (uint32_t i = 0; i < tamanho_bloco; i++)
             bloco_str[i] = digitos[pos + i];
 
         bloco_str[tamanho_bloco] = '\0';
@@ -109,11 +110,11 @@ int numio_le_numero_txt(const char *caminho, struct Numero *num)
     return 0;
 }
 
-unsigned long long numio_str_para_numero(const char *str, unsigned long long tam_str)
+uint64_t numio_str_para_numero(const char *str, uint64_t tam_str)
 {
-    unsigned long long valor = 0;
+    uint64_t valor = 0;
 
-    for (unsigned long long i = 0; i < tam_str; i++)
+    for (uint64_t i = 0; i < tam_str; i++)
     {
         if (isdigit(str[i]))
             valor = valor * 10 + (str[i] - '0');
@@ -122,7 +123,7 @@ unsigned long long numio_str_para_numero(const char *str, unsigned long long tam
     return valor;
 }
 
-int numio_print_numero(struct Numero *num)
+int numio_print_numero(const struct Numero *num)
 {
     if (num == NULL)
         return -2;
@@ -136,47 +137,60 @@ int numio_print_numero(struct Numero *num)
     if (num->sinal == -1)
         printf("-");
 
-    printf("%llu", num->blocos_ptr[num->tamanho - 1]);
+    printf("%" PRIu32, num->blocos_ptr[num->tamanho - 1]);
 
     for (long long i = (long long)num->tamanho - 2; i >= 0; i--)
-        printf("%0*llu", DIGITOS_BLOCO, num->blocos_ptr[i]);
+        printf("%0*u", DIGITOS_BLOCO, num->blocos_ptr[i]);
 
     printf("\n");
     return 0;
 }
 
-int numio_print_numero_compacto(struct Numero *num)
+int numio_print_numero_compacto(const struct Numero *num)
 {
     if (num == NULL)
         return -2;
 
-    // caso especial = zero
     if (num->tamanho == 0 || (num->tamanho == 1 && num->blocos_ptr[0] == 0))
     {
         printf("0\n");
         return 0;
     }
 
-    unsigned long long tam = num->tamanho;
+    uint64_t tam = num->tamanho;
+    int mostrar_blocos = NUMIO_LIMITE_PRINT; 
+    int blocos_inicio = mostrar_blocos / 2;
+    int blocos_fim = mostrar_blocos - blocos_inicio;
 
-    int truncado = (tam > NUMIO_LIMITE_PRINT);
+    if (blocos_inicio > (long long)tam)
+        blocos_inicio = (long long)tam;
+    if (blocos_fim > (long long)tam - blocos_inicio)
+        blocos_fim = (long long)tam - blocos_inicio;
 
     if (num->sinal == -1)
         printf("-");
 
-    printf("%llu", num->blocos_ptr[tam - 1]);
 
-    long long limite = truncado ? (long long)(tam - NUMIO_LIMITE_PRINT) : -1;
+    for (long long i = tam - 1; i >= (long long)(tam - blocos_inicio); i--)
+    {
+        if (i == (long long)(tam - 1))
+            printf("%" PRIu32, num->blocos_ptr[i]); 
+        else
+            printf("%0*u", DIGITOS_BLOCO, num->blocos_ptr[i]);
+    }
 
-    for (long long i = (long long)tam - 2; i > limite; i--)
-        printf("%0*llu", DIGITOS_BLOCO, num->blocos_ptr[i]);
-
-    if (truncado)
+    if (tam > (uint64_t)mostrar_blocos)
         printf("...");
+
+    for (long long i = (long long)blocos_fim - 1; i >= 0; i--)
+    {
+        printf("%0*u", DIGITOS_BLOCO, num->blocos_ptr[i]);
+    }
 
     printf("\n");
     return 0;
 }
+
 
 void numio_limpa_buffer()
 {
@@ -207,9 +221,6 @@ void numio_interface()
         scanf("%d", &escolha);
         numio_limpa_buffer();
 
-        if (escolha == 3)
-            break;
-
         if (escolha == 1)
         {
 
@@ -229,13 +240,13 @@ void numio_interface()
 
             if (opcao_entrada == 1)
             {
-                unsigned long long v1, v2;
+                uint32_t v1, v2;
 
-                printf("Digite o primeiro numero (unsigned long long): ");
-                scanf("%llu", &v1);
+                printf("Digite o primeiro numero (uint32): ");
+                scanf("%" SCNu32, &v1);
 
-                printf("Digite o segundo numero (unsigned long long): ");
-                scanf("%llu", &v2);
+                printf("Digite o segundo numero (uint32): ");
+                scanf("%" SCNu32, &v2);
 
                 numio_limpa_buffer();
 
@@ -266,13 +277,13 @@ void numio_interface()
             }
             else if (opcao_entrada == 3)
             {
-                unsigned long long bloc1, bloc2;
+                uint64_t bloc1, bloc2;
 
                 printf("Quantos blocos para o primeiro numero? ");
-                scanf("%llu", &bloc1);
+                scanf("%" SCNu64, &bloc1);
 
                 printf("Quantos blocos para o segundo numero? ");
-                scanf("%llu", &bloc2);
+                scanf("%" SCNu64, &bloc2);
 
                 numio_limpa_buffer();
 
@@ -291,15 +302,36 @@ void numio_interface()
             numutil_normaliza(&num1);
             numutil_normaliza(&num2);
 
-            struct Numero *p1 = &num1, *p2 = &num2;
-            if (numutil_compara(&num1, &num2) < 0)
-                numutil_troca_ponteiros(&p1, &p2);
-
-            printf("Numero 1: ");
-            numio_print_numero_compacto(&num1);
+            printf("\nNumero 1: ");
+            if (num1.tamanho > NUMIO_LIMITE_PRINT)
+                numio_print_numero_compacto(&num1);
+            else
+                numio_print_numero(&num1);
 
             printf("Numero 2: ");
-            numio_print_numero_compacto(&num2);
+            if (num2.tamanho > NUMIO_LIMITE_PRINT)
+                numio_print_numero_compacto(&num2);
+            else
+                numio_print_numero(&num2);
+        }
+        if (escolha == 2)
+        {
+            printf("\nNumero 1: ");
+            if (num1.tamanho > NUMIO_LIMITE_PRINT)
+                numio_print_numero_compacto(&num1);
+            else
+                numio_print_numero(&num1);
+
+            printf("Numero 2: ");
+            if (num2.tamanho > NUMIO_LIMITE_PRINT)
+                numio_print_numero_compacto(&num2);
+            else
+                numio_print_numero(&num2);
+        }
+        if (escolha == 3)
+        {
+            printf("Saindo do programa...\n");
+            break;
         }
 
         int opcao_operacao;
@@ -325,7 +357,7 @@ void numio_interface()
 
         case 2:
             numarit_subtracao(&num1, &num2, &resultado);
-            resultado.sinal = (numutil_compara(&num1, &num2) >= 0) ? 1 : -1;
+            
             break;
 
         case 3:
@@ -413,9 +445,9 @@ void numio_interface()
                 }
                 else
                 {
-                    fprintf(fptr, "%llu", resultado.blocos_ptr[resultado.tamanho - 1]);
+                    fprintf(fptr, "%" PRIu32, resultado.blocos_ptr[resultado.tamanho - 1]);
                     for (long long i = (long long)resultado.tamanho - 2; i >= 0; i--)
-                        fprintf(fptr, "%0*llu", DIGITOS_BLOCO, resultado.blocos_ptr[i]);
+                        fprintf(fptr, "%0*u", DIGITOS_BLOCO, resultado.blocos_ptr[i]);
                     fprintf(fptr, "\n");
                     fclose(fptr);
                     printf("Test case criado!\n");

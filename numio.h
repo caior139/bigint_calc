@@ -24,8 +24,7 @@
  *  -1   - Falha de alocação do número
  *  -2   - Argumento NULL
  */
-int numio_gera_numero(struct Numero *num, unsigned long long num_blocos, int seed);
-
+int numio_gera_numero(struct Numero *num, uint64_t num_blocos, int seed);
 /*
  * Imprime um número no stdout.
  *
@@ -41,7 +40,7 @@ int numio_gera_numero(struct Numero *num, unsigned long long num_blocos, int see
  *   Imprime o número completo, respeitando o sinal e preenchendo blocos
  *   com zeros à esquerda quando necessário.
  */
-int numio_print_numero(struct Numero *num);
+int numio_print_numero(const struct Numero *num);
 
 /*
  * Converte uma string de dígitos para um valor unsigned long long.
@@ -56,7 +55,7 @@ int numio_print_numero(struct Numero *num);
  * Observação:
  *   Ignora caracteres que não são dígitos.
  */
-unsigned long long numio_str_para_numero(const char *str, unsigned long long tam_str);
+uint64_t numio_str_para_numero(const char *str, uint64_t tam_str);
 
 /*
  * Lê um número de um arquivo de texto e inicializa um struct Numero.
