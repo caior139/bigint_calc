@@ -195,8 +195,7 @@ int numio_print_numero_compacto(const struct Numero *num)
 void numio_limpa_buffer()
 {
     int c;
-    while ((c = getchar()) != '\n' && c != EOF)
-        ;
+    while ((c = getchar()) != '\n' && c != EOF);
 }
 void numio_interface()
 {
@@ -207,6 +206,7 @@ void numio_interface()
     numero_cria_vazio(&resultado);
     numero_cria_vazio(&resto);
 
+    printf("========== CALCULADORA BIG INT ==========\n");
     while (1)
     {
         int escolha;
@@ -220,6 +220,7 @@ void numio_interface()
 
         scanf("%d", &escolha);
         numio_limpa_buffer();
+        printf("\n");
 
         if (escolha == 1)
         {
@@ -347,7 +348,8 @@ void numio_interface()
 
         scanf("%d", &opcao_operacao);
         numio_limpa_buffer();
-
+        printf("\n");
+        
         switch (opcao_operacao)
         {
         case 1:
