@@ -5,9 +5,6 @@
 #include "numio.h"
 #include "numutil.h"
 
-/* TODO:
- * Implementar operação especial
-*/
 int main()
 {
     numio_interface();
