@@ -408,41 +408,34 @@ int numarit_modulo(const struct Numero *num1, const struct Numero *num2, struct 
 
 double numarit_lambert(const struct Numero *num, struct Numero *resultado)
 {
+    if (num == NULL || resultado == NULL)
+        return -1;
+
     if (num->sinal < 0)
         return -1;
 
     if (num->sinal == 0)
     {
         numero_set(resultado, 0);
-        return 0;
+        return 0.0;
     }
 
     double ln_n = numutil_estima_ln(num);
-
-    double w;
-    if (ln_n < 1.0)
-        w = ln_n;
-    else
-        w = ln_n - log(ln_n);
-
-    if (!(w > 0.0))
-        w = 1e-7;
-    double tolerancia = 1e-9;
+    double ln_ln = log(ln_n);
+    double w = ln_n - ln_ln + ln_ln / ln_n;
 
     for (int i = 0; i < MAX_ITER; i++)
     {
         double log_w = log(w);
         double numerador = w - ln_n + log_w;
-        double denominador = 1.0 + (1.0 / w);
+        double denominador = 1.0 + 1.0 / w;
         double diff = numerador / denominador;
         w = w - diff;
-        if (fabs(diff) < tolerancia)
+        if (fabs(diff) < TOL)
             break;
     }
 
-    uint32_t resultado_final = (uint32_t)floor(w);
-
-    numero_set(resultado, resultado_final);
-
-    return w - resultado_final;
+    uint32_t w_floor = (uint32_t)floor(w);
+    numero_set(resultado, w_floor);
+    return w - w_floor;
 }

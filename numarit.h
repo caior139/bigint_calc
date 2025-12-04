@@ -1,7 +1,8 @@
 #ifndef NUMARIT_H
 #define NUMARIT_H
 
-#define MAX_ITER 20
+#define MAX_ITER 100
+#define TOL 1e-14
 #include "numero.h"
 
 /*

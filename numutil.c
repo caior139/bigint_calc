@@ -73,14 +73,13 @@ double numutil_estima_ln(const struct Numero *num)
     if (num->sinal == 0 || tam == 0)
         return 0.0;
 
-    uint64_t blk = num->blocos_ptr[tam - 1];
-
-    uint64_t temp = blk;
-    int blk_dig = 1;
+    uint64_t blk1 = num->blocos_ptr[tam - 1];
+    int blk1_dig = 1;
+    uint64_t temp = blk1;
     while (temp >= 10ULL)
     {
         temp /= 10ULL;
-        blk_dig++;
+        blk1_dig++;
     }
 
     double mantissa;
@@ -88,21 +87,20 @@ double numutil_estima_ln(const struct Numero *num)
 
     if (tam == 1)
     {
-        exp10 = (double)(blk_dig - 1);
-        mantissa = (double)blk / pow(10.0, blk_dig - 1);
-
+        exp10 = (double)(blk1_dig - 1);
+        mantissa = (double)blk1 / pow(10.0, blk1_dig - 1);
         return log(mantissa) + exp10 * log(10.0);
     }
 
     uint64_t blk2 = num->blocos_ptr[tam - 2];
-    double comb = (double)blk * 1e8 + (double)blk2;
+    uint64_t blk3 = (tam >= 3) ? num->blocos_ptr[tam - 3] : 0;
 
-    int comb_dig = blk_dig + DIGITOS_BLOCO;
+    double comb = (double)blk1 * 1e18 + (double)blk2 * 1e9 + (double)blk3;
 
+    int comb_dig = blk1_dig + ((tam >= 2) ? 9 : 0) + ((tam >= 3) ? 9 : 0);
     mantissa = comb / pow(10.0, comb_dig - 1);
 
-    uint64_t total_dig = (tam - 1) * DIGITOS_BLOCO + blk_dig;
-
+    uint64_t total_dig = (tam - 1) * DIGITOS_BLOCO + blk1_dig;
     exp10 = (double)(total_dig - 1);
 
     return log(mantissa) + exp10 * log(10.0);
