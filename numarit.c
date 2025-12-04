@@ -425,6 +425,8 @@ double numarit_lambert(const struct Numero *num, struct Numero *resultado)
     else
         w = ln_n - log(ln_n);
 
+    if (!(w > 0.0))
+        w = 1e-7;
     double tolerancia = 1e-9;
 
     for (int i = 0; i < MAX_ITER; i++)
