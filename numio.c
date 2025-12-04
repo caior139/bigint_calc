@@ -31,7 +31,6 @@ int numio_gera_numero(struct Numero *num, uint64_t num_blocos, int seed)
         num->blocos_ptr[i] = (uint32_t)(rand() % BLOCO_BASE);
 
     num->blocos_ptr[num_blocos - 1] = (uint32_t)((rand() % (BLOCO_BASE - 1)) + 1);
-
     return 0;
 }
 
@@ -287,9 +286,10 @@ void numio_interface()
                 scanf("%" SCNu64, &bloc2);
 
                 numio_limpa_buffer();
+                unsigned int seed = (unsigned int)time(NULL);
 
-                numio_gera_numero(&num1, bloc1, 0);
-                numio_gera_numero(&num2, bloc2, 0);
+                numio_gera_numero(&num1, bloc1, seed);
+                numio_gera_numero(&num2, bloc2, seed + 12345);
 
                 num1.sinal = 1;
                 num2.sinal = 1;
@@ -409,16 +409,14 @@ void numio_interface()
 
         if (salvar == 's' || salvar == 'S')
         {
-            char nome_testcase[512];
-            printf("Digite o nome do test case (ex: TESTE1.txt): ");
-            fgets(nome_testcase, sizeof(nome_testcase) - 1, stdin);
-            nome_testcase[strcspn(nome_testcase, "\n")] = 0;
+
+            printf("Digite o caminho do test case: ");
 
             char caminho_completo[1024];
 
-            snprintf(caminho_completo, sizeof(caminho_completo),
-                     "/home/caio/Área de trabalho/Geral/Programação/c-sadao/testes/%s",
-                     nome_testcase);
+            fgets(caminho_completo, sizeof(caminho_completo), stdin);
+            caminho_completo[strcspn(caminho_completo, "\n")] = 0;
+
 
             FILE *fptr = fopen(caminho_completo, "r");
 
