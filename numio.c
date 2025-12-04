@@ -368,7 +368,7 @@ void numio_interface()
             break;
 
         case 4:
-            numarit_divisao_knuth(&num1, &num2, &resultado, &resto);
+            numarit_divisao(&num1, &num2, &resultado, &resto);
             resultado.sinal = (num1.sinal == num2.sinal) ? 1 : -1;
             numero_libera(&resto);
             break;
