@@ -27,10 +27,18 @@ int numio_gera_numero(struct Numero *num, uint64_t num_blocos, int seed)
     if (numero_inicializa(num, num_blocos) != 0)
         return -1;
 
-    for (uint64_t i = 0; i < num_blocos - 1; i++)
-        num->blocos_ptr[i] = (uint32_t)(rand() % BLOCO_BASE);
+    uint32_t soma_random = 0;
 
-    num->blocos_ptr[num_blocos - 1] = (uint32_t)((rand() % (BLOCO_BASE - 1)) + 1);
+    for (uint64_t i = 0; i < num_blocos - 1; i++)
+    {
+        for (int j = 0; j < 31; j++)
+            soma_random += (uint32_t)(rand() % BLOCO_BASE);
+        num->blocos_ptr[i] = soma_random;
+    }
+
+    for (int j = 0; j < 31; j++)
+        soma_random += (uint32_t)((rand() % (BLOCO_BASE - 1)) + 1);
+    num->blocos_ptr[num_blocos - 1] = soma_random;
     return 0;
 }
 
@@ -157,7 +165,7 @@ int numio_print_numero_compacto(const struct Numero *num)
     }
 
     uint64_t tam = num->tamanho;
-    int mostrar_blocos = NUMIO_LIMITE_PRINT; 
+    int mostrar_blocos = NUMIO_LIMITE_PRINT;
     int blocos_inicio = mostrar_blocos / 2;
     int blocos_fim = mostrar_blocos - blocos_inicio;
 
@@ -169,11 +177,10 @@ int numio_print_numero_compacto(const struct Numero *num)
     if (num->sinal == -1)
         printf("-");
 
-
     for (long long i = tam - 1; i >= (long long)(tam - blocos_inicio); i--)
     {
         if (i == (long long)(tam - 1))
-            printf("%" PRIu32, num->blocos_ptr[i]); 
+            printf("%" PRIu32, num->blocos_ptr[i]);
         else
             printf("%0*u", DIGITOS_BLOCO, num->blocos_ptr[i]);
     }
@@ -190,11 +197,11 @@ int numio_print_numero_compacto(const struct Numero *num)
     return 0;
 }
 
-
 void numio_limpa_buffer()
 {
     int c;
-    while ((c = getchar()) != '\n' && c != EOF);
+    while ((c = getchar()) != '\n' && c != EOF)
+        ;
 }
 void numio_interface()
 {
@@ -210,7 +217,7 @@ void numio_interface()
     {
         int escolha;
         double w = 0;
-
+    
         printf("\nMENU PRINCIPAL:\n");
         printf("1 - Inserir/ler novos numeros\n");
         printf("2 - Realizar operacao com numeros atuais\n");
@@ -349,7 +356,7 @@ void numio_interface()
         scanf("%d", &opcao_operacao);
         numio_limpa_buffer();
         printf("\n");
-        
+
         switch (opcao_operacao)
         {
         case 1:
@@ -359,7 +366,7 @@ void numio_interface()
 
         case 2:
             numarit_subtracao(&num1, &num2, &resultado);
-            
+
             break;
 
         case 3:
@@ -416,7 +423,6 @@ void numio_interface()
 
             fgets(caminho_completo, sizeof(caminho_completo), stdin);
             caminho_completo[strcspn(caminho_completo, "\n")] = 0;
-
 
             FILE *fptr = fopen(caminho_completo, "r");
 

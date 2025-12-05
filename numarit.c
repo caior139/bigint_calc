@@ -187,7 +187,7 @@ int numarit_multiplicacao_por_ull(const struct Numero *num, uint32_t valor, stru
     return 0;
 }
 
-int numarit_divisao_por_ull(const struct Numero *num, uint32_t divisor, struct Numero *quociente, uint64_t *resto_out)
+int numarit_divisao_por_ull(const struct Numero *num, uint32_t divisor, struct Numero *quociente, uint32_t *resto_out)
 {
     if (num == NULL || quociente == NULL || resto_out == NULL)
         return -2;
@@ -212,185 +212,158 @@ int numarit_divisao_por_ull(const struct Numero *num, uint32_t divisor, struct N
     return 0;
 }
 
-int numarit_divisao(const struct Numero *dividendo, const struct Numero *divisor, struct Numero *quociente, struct Numero *resto)
+int numarit_divisao(const struct Numero *dividendo, const struct Numero *divisor,
+                    struct Numero *quociente, struct Numero *resto)
 {
     if (dividendo == NULL || divisor == NULL || quociente == NULL || resto == NULL)
         return -2;
 
-    if (divisor->tamanho == 0 ||
-        (divisor->tamanho == 1 && divisor->blocos_ptr[0] == 0))
+    if (divisor->tamanho == 0 || (divisor->tamanho == 1 && divisor->blocos_ptr[0] == 0))
         return -3;
+
+    if (numutil_compara(dividendo, divisor) < 0)
+    {
+        numero_set(quociente, 0);
+        numero_copia(dividendo, resto);
+        return 0;
+    }
 
     uint64_t m = dividendo->tamanho;
     uint64_t n = divisor->tamanho;
 
-    if (numutil_compara(dividendo, divisor) == -1)
-    {
-        numero_set(quociente, 0);
-        numero_copia(dividendo, resto);
-        numutil_normaliza(quociente);
-        numutil_normaliza(resto);
-        return 0;
-    }
-
     if (n == 1)
     {
-        uint64_t resto64;
-        int e = numarit_divisao_por_ull(dividendo, divisor->blocos_ptr[0], quociente, &resto64);
-        if (e != 0)
-            return e;
-
-        if (numero_inicializa(resto, 1) != 0)
-            return -1;
-        resto->blocos_ptr[0] = (uint32_t)resto64;
+        uint32_t rem32;
+        numarit_divisao_por_ull(dividendo, divisor->blocos_ptr[0], quociente, &rem32);
+        numero_inicializa(resto, 1);
+        resto->blocos_ptr[0] = (uint32_t)rem32;
         numutil_normaliza(quociente);
         numutil_normaliza(resto);
         return 0;
     }
 
-    uint64_t v_m = divisor->blocos_ptr[n - 1];
-    uint64_t fator = BLOCO_BASE / (v_m + 1ULL);
-    if (fator == 0)
-        fator = 1;
+    uint64_t fator;
+    uint64_t vn_1 = divisor->blocos_ptr[n - 1];
+    
+    if (vn_1 < BLOCO_BASE / 2)
+        fator = BLOCO_BASE / (vn_1 + 1);
+    
+    else
+        fator = 1; 
+    
 
-    struct Numero norm_dividendo, norm_divisor;
-    numero_cria_vazio(&norm_dividendo);
-    numero_cria_vazio(&norm_divisor);
 
-    if (numero_inicializa(&norm_dividendo, m + 1) != 0)
-        return -1;
-    if (numero_inicializa(&norm_divisor, n) != 0)
-    {
-        numero_libera(&norm_dividendo);
-        return -1;
-    }
+    struct Numero u_norm, v_norm;
+    numero_cria_vazio(&u_norm);
+    numero_cria_vazio(&v_norm);
+    
+    numero_inicializa(&u_norm, m + 1);
+    numero_inicializa(&v_norm, n);
+    
 
-    if (numarit_multiplicacao_por_ull(dividendo, fator, &norm_dividendo) != 0)
-    {
-        numero_libera(&norm_dividendo);
-        numero_libera(&norm_divisor);
-        return -1;
-    }
-    if (numarit_multiplicacao_por_ull(divisor, fator, &norm_divisor) != 0)
-    {
-        numero_libera(&norm_dividendo);
-        numero_libera(&norm_divisor);
-        return -1;
-    }
+    numarit_multiplicacao_por_ull(dividendo, fator, &u_norm);
+    numarit_multiplicacao_por_ull(divisor, fator, &v_norm);
+    
+    uint32_t *u = u_norm.blocos_ptr;
+    uint32_t *v = v_norm.blocos_ptr;
+    
 
-    if (norm_dividendo.tamanho < m + 1)
-    {
-        struct Numero temp;
-        numero_cria_vazio(&temp);
-        if (numero_inicializa(&temp, m + 1) != 0)
-        {
-            numero_libera(&norm_dividendo);
-            numero_libera(&norm_divisor);
-            return -1;
-        }
-        for (uint64_t i = 0; i < norm_dividendo.tamanho; ++i)
-            temp.blocos_ptr[i] = norm_dividendo.blocos_ptr[i];
-        numero_libera(&norm_dividendo);
-        norm_dividendo = temp;
-    }
-
-    uint64_t q_size = (m >= n) ? (m - n + 1) : 1;
-    if (numero_inicializa(quociente, q_size) != 0)
-    {
-        numero_libera(&norm_dividendo);
-        numero_libera(&norm_divisor);
-        return -1;
-    }
-    if (numero_inicializa(resto, n) != 0)
-    {
-        numero_libera(&norm_dividendo);
-        numero_libera(&norm_divisor);
-        numero_libera(quociente);
-        return -1;
-    }
-
-    uint32_t *u = norm_dividendo.blocos_ptr;
-    uint32_t *v = norm_divisor.blocos_ptr;
+    numero_inicializa(quociente, m - n + 1);
     uint32_t *q = quociente->blocos_ptr;
+    
 
-    for (uint64_t i = 0; i < q_size; ++i)
-        q[i] = 0;
-
-    for (int64_t j = (int64_t)(m - n); j >= 0; --j)
+    for (int64_t j = m - n; j >= 0; j--)
     {
-        uint64_t u_jn = (uint64_t)u[j + n];
-        uint64_t u_jn1 = (uint64_t)u[j + n - 1];
-        uint64_t v_n1 = (uint64_t)v[n - 1];
-        uint64_t v_n2 = (uint64_t)v[n - 2];
 
-        uint64_t numerador = u_jn * BLOCO_BASE + u_jn1;
-        uint64_t q_hat = numerador / v_n1;
-        uint64_t r_hat = numerador % v_n1;
-
-        uint64_t u_jn2 = (uint64_t)u[j + n - 2];
-
-        while (q_hat >= BLOCO_BASE || q_hat * v_n2 > BLOCO_BASE * r_hat + u_jn2)
+        uint64_t numerador = (uint64_t)u[j + n] * BLOCO_BASE + u[j + n - 1];
+        uint64_t q_hat = numerador / v[n - 1];
+        uint64_t r_hat = numerador % v[n - 1];
+        
+        
+        if (q_hat >= BLOCO_BASE)
         {
-            q_hat--;
-            r_hat += v_n1;
-            if (r_hat >= BLOCO_BASE)
-                break;
+            q_hat = BLOCO_BASE - 1;
+            r_hat = numerador - q_hat * v[n - 1];
         }
-
-        int64_t emprestimo = 0;
-        for (uint64_t i = 0; i < n; ++i)
+        
+    
+        while (r_hat < BLOCO_BASE)
         {
-            uint64_t p = q_hat * (uint64_t)v[i];
-            uint64_t p_lo = p % BLOCO_BASE;
-            uint64_t p_hi = p / BLOCO_BASE;
-
-            int64_t cur = (int64_t)u[j + i] - (int64_t)p_lo - emprestimo;
-            if (cur < 0)
+            uint64_t esq = q_hat * v[n - 2];
+            uint64_t dir = r_hat * BLOCO_BASE + u[j + n - 2];
+            
+            if (esq > dir)
             {
-                cur += (int64_t)BLOCO_BASE;
-                emprestimo = (int64_t)p_hi + 1;
+                q_hat--;
+                r_hat += v[n - 1];
             }
             else
-            {
-                emprestimo = (int64_t)p_hi;
-            }
-            u[j + i] = (uint32_t)cur;
+                break;
+            
         }
-
-        int64_t t = (int64_t)u[j + n] - emprestimo;
-        u[j + n] = (uint32_t)((t < 0) ? (t + (int64_t)BLOCO_BASE) : t);
-
-        q[j] = (uint32_t)q_hat;
-
-        if (t < 0)
+        
+       
+        uint64_t emprestimo = 0;
+        for (uint64_t i = 0; i < n; i++)
         {
-            q[j] = q[j] - 1;
-            uint64_t carry = 0;
-            for (uint64_t i = 0; i < n; ++i)
+            uint64_t prod = q_hat * v[i] + emprestimo;
+            uint64_t prod_lo = prod % BLOCO_BASE;
+            uint64_t prod_hi = prod / BLOCO_BASE;
+            
+    
+            int64_t dif = (int64_t)u[i + j] - (int64_t)prod_lo;
+            
+            if (dif < 0)
             {
-                uint64_t soma = (uint64_t)u[j + i] + (uint64_t)v[i] + carry;
-                u[j + i] = (uint32_t)(soma % BLOCO_BASE);
+                dif += BLOCO_BASE;
+                prod_hi++;  
+            }
+            
+            u[i + j] = (uint32_t)dif;
+            emprestimo = prod_hi; 
+        }
+        
+
+        int64_t dif_final = (int64_t)u[j + n] - (int64_t)emprestimo;
+        
+ 
+        q[j] = (uint32_t)q_hat;
+        
+     
+        if (dif_final < 0)
+        {
+            q[j]--;
+            
+            uint64_t carry = 0;
+            for (uint64_t i = 0; i < n; i++)
+            {
+                uint64_t soma = (uint64_t)u[i + j] + (uint64_t)v[i] + carry;
+                u[i + j] = (uint32_t)(soma % BLOCO_BASE);
                 carry = soma / BLOCO_BASE;
             }
-            uint64_t somatopo = (uint64_t)u[j + n] + emprestimo;
-            u[j + n] = (uint32_t)(somatopo % BLOCO_BASE);
+            
+            u[j + n] += (uint32_t)carry;
         }
+        else
+            u[j + n] = (uint32_t)dif_final;
+        
     }
+    
 
-    uint64_t rem64;
-    if (numarit_divisao_por_ull(&norm_dividendo, fator, resto, &rem64) != 0)
-    {
-        numero_libera(&norm_dividendo);
-        numero_libera(&norm_divisor);
-        return -1;
-    }
+    numero_inicializa(resto, n);
 
+    for (uint64_t i = 0; i < n; i++)
+        resto->blocos_ptr[i] = u[i];
+    
+    
+    uint32_t temp_rem32;
+    numarit_divisao_por_ull(resto, fator, resto, &temp_rem32);
+    
     numutil_normaliza(quociente);
     numutil_normaliza(resto);
-
-    numero_libera(&norm_dividendo);
-    numero_libera(&norm_divisor);
-
+    numero_libera(&u_norm);
+    numero_libera(&v_norm);
+    
     return 0;
 }
 
@@ -429,13 +402,13 @@ double numarit_lambert(const struct Numero *num, struct Numero *resultado)
         double log_w = log(w);
         double numerador = w - ln_n + log_w;
         double denominador = 1.0 + 1.0 / w;
-        double diff = numerador / denominador;
-        w = w - diff;
-        if (fabs(diff) < TOL)
+        double dif = numerador / denominador;
+        w = w - dif;
+        if (fabs(dif) < TOL)
             break;
     }
 
-    uint32_t w_floor = (uint32_t)floor(w);
-    numero_set(resultado, w_floor);
-    return w - w_floor;
+    uint32_t w_int = (uint32_t)floor(w);
+    numero_set(resultado, w_int);
+    return w - w_int;
 }

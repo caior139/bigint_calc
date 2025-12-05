@@ -90,7 +90,7 @@ int numarit_multiplicacao_por_ull(const struct Numero *A, uint32_t b, struct Num
 int numarit_divisao_por_ull(const struct Numero *num,
                             uint32_t divisor,
                             struct Numero *quociente,
-                            uint64_t *resto_out);
+                            uint32_t *resto_out);
 
 /*
  * Divide A por B usando o algoritmo de Knuth (divisão longa).
